@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
-    rpID: getRpID(),
+    rpID: getRpID(req),
     userName: username,
     userDisplayName: username,
     userID: Buffer.from(userId),

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   // No allowCredentials / no username: the browser looks up whichever
   // discoverable passkeys for this site the device already has (T08-C27).
   const options = await generateAuthenticationOptions({
-    rpID: getRpID(),
+    rpID: getRpID(req),
     userVerification: 'preferred',
   });
 

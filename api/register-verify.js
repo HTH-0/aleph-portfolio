@@ -42,8 +42,8 @@ export default async function handler(req, res) {
     verification = await verifyRegistrationResponse({
       response,
       expectedChallenge: challengeRow.challenge,
-      expectedOrigin: getOrigin(),
-      expectedRPID: getRpID(),
+      expectedOrigin: getOrigin(req),
+      expectedRPID: getRpID(req),
     });
   } catch (err) {
     return res.status(400).json({ error: 'verification_failed', message: err.message });

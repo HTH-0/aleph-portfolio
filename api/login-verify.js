@@ -37,8 +37,8 @@ export default async function handler(req, res) {
     verification = await verifyAuthenticationResponse({
       response,
       expectedChallenge: challengeRow.challenge,
-      expectedOrigin: getOrigin(),
-      expectedRPID: getRpID(),
+      expectedOrigin: getOrigin(req),
+      expectedRPID: getRpID(req),
       // This is the stored public key from registration -- the actual signature
       // check happens inside the library against this value.
       credential: {
