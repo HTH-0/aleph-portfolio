@@ -1,0 +1,14 @@
+{
+  "name": "aleph-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Learning portfolio with a passkey-protected private area (T08)",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "14.0.1",
+    "@neondatabase/serverless": "1.1.0"
+  }
+}

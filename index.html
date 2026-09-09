@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="배우고, 검증하고, 개선하는 과정을 기록한 개인 포트폴리오" />
+  <title>Learning Portfolio</title>
+
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-soft: #f1f4f7;
+      --text: #111827;
+      --text-secondary: #5f6b7a;
+      --text-light: #8993a2;
+      --navy: #111c35;
+      --accent: #3563e9;
+      --accent-soft: #eaf0ff;
+      --border: #e5e9ef;
+      --shadow: 0 18px 50px rgba(17, 28, 53, 0.07);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans KR",
+        "Apple SD Gothic Neo",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      word-break: keep-all;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .container {
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(247, 248, 250, 0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(229, 233, 239, 0.7);
+    }
+
+    .nav-inner {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--navy);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 90px;
+    }
+
+    .hero-content {
+      max-width: 820px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      margin-bottom: 24px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 1.1;
+      letter-spacing: -0.065em;
+      color: var(--navy);
+      margin-bottom: 28px;
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .hero-description {
+      max-width: 650px;
+      color: var(--text-secondary);
+      font-size: 18px;
+      line-height: 1.85;
+      margin-bottom: 36px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .button-primary {
+      background: var(--navy);
+      color: white;
+      box-shadow: 0 10px 25px rgba(17, 28, 53, 0.15);
+    }
+
+    .button-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(17, 28, 53, 0.2);
+    }
+
+    .button-secondary {
+      background: var(--surface);
+      color: var(--navy);
+      border: 1px solid var(--border);
+    }
+
+    .button-secondary:hover {
+      transform: translateY(-2px);
+      border-color: #cbd3df;
+    }
+
+    /* Common Section */
+    section {
+      padding: 110px 0;
+      scroll-margin-top: 72px;
+    }
+
+    .section-heading {
+      max-width: 650px;
+      margin-bottom: 48px;
+    }
+
+    .section-label {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+    }
+
+    .section-heading h2 {
+      color: var(--navy);
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.2;
+      letter-spacing: -0.055em;
+      margin-bottom: 16px;
+    }
+
+    .section-heading p {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    /* About */
+    .about {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .strength-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .strength-card {
+      position: relative;
+      padding: 30px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+    }
+
+    .strength-card:hover {
+      transform: translateY(-5px);
+      border-color: #d4dce8;
+      box-shadow: var(--shadow);
+    }
+
+    .strength-number {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      margin-bottom: 40px;
+    }
+
+    .strength-card h3 {
+      color: var(--navy);
+      font-size: 21px;
+      line-height: 1.4;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .strength-card p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    /* Experience */
+    .experience-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .experience-card {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 50px;
+      padding: 38px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .experience-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .experience-meta {
+      border-right: 1px solid var(--border);
+      padding-right: 30px;
+    }
+
+    .experience-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .experience-meta .meta-label {
+      display: block;
+      color: var(--text-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      margin-bottom: 5px;
+    }
+
+    .experience-meta .meta-value {
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .experience-main h3 {
+      color: var(--navy);
+      font-size: 26px;
+      line-height: 1.35;
+      letter-spacing: -0.045em;
+      margin-bottom: 28px;
+    }
+
+    .story {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .story-item {
+      padding: 18px 12px;
+      border-top: 3px solid var(--border);
+      border-radius: 0 0 8px 8px;
+      transition: all 0.3s ease;
+    }
+
+    .story-label {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--text-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      transition: color 0.3s ease;
+    }
+
+    .story-item p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.8;
+      transition: color 0.3s ease;
+    }
+
+    .story-item:hover {
+      border-top-color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    .story-item:hover .story-label {
+      color: var(--accent);
+    }
+
+    .story-item:hover p {
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    /* Evidence */
+    .evidence {
+      background: var(--navy);
+      color: white;
+    }
+
+    .evidence .section-label {
+      color: #8faaff;
+    }
+
+    .evidence .section-heading h2 {
+      color: white;
+    }
+
+    .evidence .section-heading p {
+      color: #b5bdcc;
+    }
+
+    .evidence-group {
+      margin-bottom: 28px;
+    }
+
+    .evidence-group-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #8faaff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .evidence-group-title::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #8faaff;
+      border-radius: 50%;
+    }
+
+    .evidence-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* 버튼 스타일 태그 */
+    .evidence-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+      transition: all 0.25s ease;
+      cursor: default;
+    }
+
+    /* 깃허브 연결 링크용 버튼 스타일 */
+    a.evidence-btn {
+      cursor: pointer;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    a.evidence-btn:hover {
+      background: #254edb;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(53, 99, 233, 0.4);
+    }
+
+    /* Private (T08) */
+    .private {
+      background: var(--bg);
+    }
+
+    .private-panel {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 44px;
+      border-radius: var(--radius-lg);
+      background: #17130f;
+      color: #f3ede4;
+      border: 2px dashed #6b5a3f;
+    }
+
+    .private-lock-icon {
+      font-size: 34px;
+      margin-bottom: 14px;
+    }
+
+    .private-locked-text {
+      color: #cbbfa9;
+      font-size: 15px;
+      margin-bottom: 28px;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .auth-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #b5a688;
+    }
+
+    .auth-input {
+      min-height: 46px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid #4a3f2f;
+      background: #241d15;
+      color: #f3ede4;
+      font-size: 14px;
+    }
+
+    .auth-input:focus {
+      outline: 2px solid #c9a24b;
+      outline-offset: 1px;
+    }
+
+    .private-panel .button-secondary {
+      background: transparent;
+      color: #f3ede4;
+      border: 1px solid #6b5a3f;
+    }
+
+    .auth-message {
+      min-height: 20px;
+      font-size: 13px;
+      color: #cbbfa9;
+      margin-top: 10px;
+    }
+
+    .auth-message-error {
+      color: #ef8b7f;
+    }
+
+    .private-account-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 26px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #3a3122;
+      font-size: 14px;
+    }
+
+    .private-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .private-item {
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #241d15;
+      border: 1px solid #3a3122;
+    }
+
+    .private-item h4 {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #eadfc9;
+    }
+
+    .private-item p {
+      font-size: 13px;
+      color: #b5a688;
+      line-height: 1.7;
+    }
+
+    .passkey-manager h3 {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #b5a688;
+      margin-bottom: 12px;
+    }
+
+    .passkey-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .passkey-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #241d15;
+      font-size: 13px;
+    }
+
+    .passkey-delete {
+      min-height: 32px;
+      padding: 0 12px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .private-panel {
+        padding: 28px 22px;
+      }
+    }
+
+    /* Contact */
+    .contact {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: end;
+    }
+
+    .contact-copy h2 {
+      color: var(--navy);
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.2;
+      letter-spacing: -0.055em;
+      margin-bottom: 18px;
+    }
+
+    .contact-copy p {
+      color: var(--text-secondary);
+      max-width: 520px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .contact-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .contact-link:hover {
+      border-color: #cbd3df;
+      transform: translateX(4px);
+    }
+
+    .contact-link-label {
+      color: var(--text-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+    }
+
+    .contact-link-value {
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* Footer */
+    footer {
+      padding: 28px 0;
+      background: var(--surface);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--text-light);
+      font-size: 12px;
+    }
+
+    /* Scroll Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .container {
+        width: min(calc(100% - 32px), var(--max-width));
+      }
+
+      .nav-inner {
+        height: 64px;
+      }
+
+      .nav-links {
+        gap: 15px;
+      }
+
+      .nav-links a {
+        font-size: 12px;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 150px 0 90px;
+      }
+
+      .hero h1 {
+        font-size: clamp(40px, 12vw, 60px);
+      }
+
+      .hero-description {
+        font-size: 16px;
+      }
+
+      section {
+        padding: 80px 0;
+        scroll-margin-top: 64px;
+      }
+
+      .strength-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .experience-card {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 26px;
+      }
+
+      .experience-meta {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 22px;
+      }
+
+      .story {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .contact-inner {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .strength-card {
+        padding: 24px;
+      }
+
+      .experience-main h3 {
+        font-size: 22px;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">MY PORTFOLIO</a>
+
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#evidence">Evidence</a></li>
+        <li><a href="#private">Private</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="container">
+        <div class="hero-content reveal">
+
+          <div class="eyebrow">LEARN · VERIFY · IMPROVE</div>
+
+          <h1>
+            배우고,<br />
+            검증하고,<br />
+            <span>더 나아갑니다.</span>
+          </h1>
+
+          <p class="hero-description">
+            새로운 것을 배울 때 모르는 부분을 그냥 넘기지 않고,
+            필요한 도움을 찾아 이해를 보완합니다.
+            배운 내용을 스스로 검증하고, 문제를 해결한 과정은 기록하며
+            다음 학습으로 연결하려고 합니다.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#experience" class="button button-primary">
+              경험 살펴보기
+            </a>
+
+            <a href="#about" class="button button-secondary">
+              배우는 방식
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT / LEARNING METHOD -->
+    <section class="about" id="about">
+      <div class="container">
+
+        <div class="section-heading reveal">
+          <span class="section-label">ABOUT / HOW I LEARN</span>
+          <h2>배우는 과정에서도<br />방법을 찾습니다.</h2>
+          <p>
+            지금까지의 학습 경험에서 반복해서 나타난 세 가지 방식을
+            하나의 흐름으로 정리했습니다.
+          </p>
+        </div>
+
+        <div class="strength-grid">
+
+          <article class="strength-card reveal">
+            <div class="strength-number">01 / LEARN</div>
+            <h3>적극적으로 질문하고 보완합니다.</h3>
+            <p>
+              새로운 분야를 배우면서 막히는 부분을 그냥 넘어가지 않습니다.
+              강사에게 질문하고 AI를 활용해 부족한 부분을 추가로 학습하며,
+              배운 내용을 실제 과제 수행으로 연결합니다.
+            </p>
+          </article>
+
+          <article class="strength-card reveal">
+            <div class="strength-number">02 / VERIFY</div>
+            <h3>제대로 이해했는지 확인합니다.</h3>
+            <p>
+              단순히 설명을 듣고 넘어가기보다 다른 비유와 방식으로
+              다시 설명해 달라고 요청하며, 내가 개념을 제대로 이해했는지
+              스스로 교차검증합니다.
+            </p>
+          </article>
+
+          <article class="strength-card reveal">
+            <div class="strength-number">03 / IMPROVE</div>
+            <h3>문제의 원인을 기록합니다.</h3>
+            <p>
+              오류를 해결하는 것에서 끝내지 않고 발생 원인을 분석하고
+              메모합니다. 이를 통해 비슷한 문제의 반복을 줄이고,
+              경험을 다른 사람에게 설명할 수 있는 지식으로 연결합니다.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience">
+      <div class="container">
+
+        <div class="section-heading reveal">
+          <span class="section-label">EXPERIENCE / WHAT I DID</span>
+          <h2>말보다<br />과정으로 보여드립니다.</h2>
+          <p>
+            실제 경험에서 무엇을 마주했고, 어떤 행동을 했으며,
+            그 결과 무엇이 달라졌는지를 중심으로 정리했습니다.
+          </p>
+        </div>
+
+        <div class="experience-list">
+
+          <!-- 경험 1 -->
+          <article class="experience-card reveal">
+
+            <div class="experience-meta">
+              <div class="experience-index">01</div>
+              <span class="meta-label">WHERE</span>
+              <div class="meta-value">학원 / 네트워크 학습</div>
+            </div>
+
+            <div class="experience-main">
+              <h3>모르는 부분을 그냥 넘기지 않는 학습</h3>
+
+              <div class="story">
+                <div class="story-item">
+                  <span class="story-label">WHEN / WHERE</span>
+                  <p>
+                    학원에서 네트워크 분야를 처음 접하며
+                    새로운 개념과 내용을 학습했습니다.
+                  </p>
+                </div>
+
+                <div class="story-item">
+                  <span class="story-label">ACTION</span>
+                  <p>
+                    수업을 따라가면서 막히는 부분이 생기면
+                    강사님에게 질문하고, AI를 활용해 부족한 부분을
+                    추가로 학습했습니다.
+                  </p>
+                </div>
+
+                <div class="story-item">
+                  <span class="story-label">RESULT</span>
+                  <p>
+                    배운 내용을 이해하고 과제를 성공적으로
+                    수행할 수 있었습니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 경험 2 -->
+          <article class="experience-card reveal">
+
+            <div class="experience-meta">
+              <div class="experience-index">02</div>
+              <span class="meta-label">WHERE</span>
+              <div class="meta-value">학원 / 새로운 내용 학습</div>
+            </div>
+
+            <div class="experience-main">
+              <h3>이해한 내용을 다른 관점에서 검증하기</h3>
+
+              <div class="story">
+                <div class="story-item">
+                  <span class="story-label">WHEN / WHERE</span>
+                  <p>
+                    학원에서 새로운 내용을 학습하면서
+                    개념을 이해하고 다음 단계로 넘어가야 했습니다.
+                  </p>
+                </div>
+
+                <div class="story-item">
+                  <span class="story-label">ACTION</span>
+                  <p>
+                    배운 내용을 AI에게 비슷한 비유나 다른 방식으로
+                    설명해 달라고 요청하고, 내가 제대로 이해하고 있는지
+                    교차검증했습니다.
+                  </p>
+                </div>
+
+                <div class="story-item">
+                  <span class="story-label">RESULT</span>
+                  <p>
+                    처음에는 애매하게 이해했던 내용도 개념 간의 흐름을
+                    확실하게 잡고 다음 단계로 넘어갈 수 있었습니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 경험 3 -->
+          <article class="experience-card reveal">
+
+            <div class="experience-meta">
+              <div class="experience-index">03</div>
+              <span class="meta-label">WHERE</span>
+              <div class="meta-value">프로그래밍 학습</div>
+            </div>
+
+            <div class="experience-main">
+              <h3>오류를 해결하는 것에서 원인을 기록하는 것으로</h3>
+
+              <div class="story">
+                <div class="story-item">
+                  <span class="story-label">WHEN / WHERE</span>
+                  <p>
+                    프로그래밍을 공부하면서 오류가 발생하거나
+                    학습이 막히는 상황을 경험했습니다.
+                  </p>
+                </div>
+
+                <div class="story-item">
+                  <span class="story-label">ACTION</span>
+                  <p>
+                    단순히 오류를 해결하는 데서 끝내지 않고,
+                    왜 해당 오류가 발생했는지 원인을 분석하고
+                    그 내용을 메모해두었습니다.
+                  </p>
+                </div>
+
+                <div class="story-item">
+                  <span class="story-label">RESULT</span>
+                  <p>
+                    비슷한 오류가 다시 발생하는 비중이 크게 줄었고,
+                    비슷한 문제를 겪는 주변 사람들에게 원인과
+                    해결 방향을 조언할 수 있게 되었습니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- EVIDENCE (요청하신 3가지 구분 및 GitHub 연결 완) -->
+    <section class="evidence" id="evidence">
+      <div class="container">
+
+        <div class="section-heading reveal">
+          <span class="section-label">EVIDENCE / LEARNING RECORD</span>
+          <h2>공개 가능한 기록</h2>
+          <p>
+            배움의 역량과 도전 과정, 자격증 보유 현황을 보여주는 기록입니다.
+          </p>
+        </div>
+
+        <div class="reveal">
+          
+          <!-- 1. 이력 및 보유 자격증 -->
+          <div class="evidence-group">
+            <div class="evidence-group-title">이력 및 보유 자격증</div>
+            <div class="evidence-items">
+              <span class="evidence-btn">🎓 영남대 기계공학부 졸업</span>
+              <span class="evidence-btn">💻 코리아 IT 학원 정처산기 과정 (6개월 수료)</span>
+              <span class="evidence-btn">📜 SQLD 보유</span>
+            </div>
+          </div>
+
+          <!-- 2. 진행중인 경험 -->
+          <div class="evidence-group">
+            <div class="evidence-group-title">진행중인 경험</div>
+            <div class="evidence-items">
+              <span class="evidence-btn">📖 Aleph 과정 수강 중</span>
+              <span class="evidence-btn">🔥 정보처리기사 (필기 합격 / 실기 진행 중)</span>
+              <span class="evidence-btn">🐧 리눅스마스터 2급 (1차 합격 / 2차 진행 중)</span>
+            </div>
+          </div>
+
+          <!-- 3. 학습 정리 (깃허브 연동) -->
+          <div class="evidence-group">
+            <div class="evidence-group-title">학습 정리</div>
+            <div class="evidence-items">
+              <a href="https://github.com/HTH-0" target="_blank" class="evidence-btn">
+                🔗 HTH-0 GitHub 저장소 바로가기 ↗
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PRIVATE (T08: 패스키로만 열리는 비공개 영역) -->
+    <section class="private" id="private">
+      <div class="container">
+
+        <div class="section-heading reveal">
+          <span class="section-label">PRIVATE / MY OWN SPACE</span>
+          <h2>여기부터는<br />저만 보는 자리입니다.</h2>
+          <p>
+            아래 영역은 패스키로 인증한 사람만 볼 수 있습니다.
+            공개 소개 페이지와는 분리된, 준비 중인 메모를 남겨두는 공간입니다.
+          </p>
+        </div>
+
+        <!-- 잠긴 상태: 비공개 내용은 서버에서 로그인 후에만 내려오며, 이 페이지 소스에는 들어있지 않습니다. -->
+        <div id="private-locked" class="private-panel reveal">
+          <div class="private-lock-icon">🔒</div>
+          <p class="private-locked-text">잠겨 있습니다. 패스키로 인증해야 아래 내용을 볼 수 있습니다.</p>
+
+          <form id="login-form" class="auth-form" autocomplete="off">
+            <label for="login-username" class="auth-label">계정 (자동완성으로 선택 가능, 직접 입력 불필요)</label>
+            <input
+              type="text"
+              id="login-username"
+              name="username"
+              class="auth-input"
+              placeholder="여기를 클릭하면 저장된 패스키가 표시됩니다"
+              autocomplete="username webauthn"
+            />
+            <button type="button" id="login-button" class="button button-primary">🔑 패스키로 로그인</button>
+          </form>
+
+          <button type="button" id="show-register-button" class="button button-secondary">새 패스키 등록</button>
+
+          <form id="register-form" class="auth-form" hidden>
+            <label for="register-username" class="auth-label">계정 이름</label>
+            <input type="text" id="register-username" class="auth-input" placeholder="예: test-account-1" required />
+            <label for="register-nickname" class="auth-label">이 패스키 이름</label>
+            <input type="text" id="register-nickname" class="auth-input" placeholder="예: MacBook Touch ID" required />
+            <div class="hero-actions">
+              <button type="submit" id="register-button" class="button button-primary">패스키 등록</button>
+              <button type="button" id="cancel-register-button" class="button button-secondary">취소</button>
+            </div>
+          </form>
+
+          <p id="auth-message" class="auth-message" role="status"></p>
+        </div>
+
+        <!-- 열린 상태: 아래 요소들은 로그인 성공 후 JS가 API 응답으로 채워 넣습니다. -->
+        <div id="private-unlocked" class="private-panel reveal" hidden>
+          <div class="private-account-bar">
+            <span>로그인됨: <strong id="current-username"></strong></span>
+            <button type="button" id="logout-button" class="button button-secondary">로그아웃</button>
+          </div>
+
+          <div id="private-items" class="private-items"></div>
+
+          <div class="passkey-manager">
+            <h3>등록된 패스키</h3>
+            <ul id="passkey-list" class="passkey-list"></ul>
+            <button type="button" id="add-passkey-button" class="button button-secondary">이 기기에 새 패스키 추가</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CONTACT (GitHub 링크 적용) -->
+    <section class="contact" id="contact">
+      <div class="container contact-inner">
+
+        <div class="contact-copy reveal">
+          <span class="section-label">CONTACT</span>
+
+          <h2>
+            더 궁금한 점이<br />
+            있다면 연락해주세요.
+          </h2>
+
+          <p>
+            학습 과정이나 경험에 대해 더 이야기하고 싶다면
+            아래 연락처를 통해 연결할 수 있습니다.
+          </p>
+        </div>
+
+        <div class="contact-links reveal">
+
+          <a href="mailto:YOUR_EMAIL@example.com" class="contact-link">
+            <span class="contact-link-label">EMAIL</span>
+            <span class="contact-link-value">YOUR_EMAIL@example.com</span>
+          </a>
+
+          <a href="https://github.com/HTH-0" target="_blank" class="contact-link">
+            <span class="contact-link-label">GITHUB</span>
+            <span class="contact-link-value">
+              github.com/HTH-0 ↗
+            </span>
+          </a>
+
+          <a href="#" class="contact-link" onclick="return false;">
+            <span class="contact-link-label">OTHER</span>
+            <span class="contact-link-value">링크 추가 예정 →</span>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container footer-inner">
+      <span>© 2026 MY PORTFOLIO</span>
+      <span>Learn · Verify · Improve</span>
+    </div>
+  </footer>
+
+  <script>
+    /* Smooth Navigation */
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener("click", function (event) {
+        const targetId = this.getAttribute("href");
+
+        if (!targetId || targetId === "#") return;
+
+        const target = document.querySelector(targetId);
+
+        if (target) {
+          event.preventDefault();
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }
+      });
+    });
+
+    /* Scroll Reveal */
+    const revealElements = document.querySelectorAll(".reveal");
+
+    const revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.12
+      }
+    );
+
+    revealElements.forEach((element) => {
+      revealObserver.observe(element);
+    });
+  </script>
+
+  <script src="https://unpkg.com/@simplewebauthn/browser@14.0.0/dist/bundle/index.umd.min.js" defer></script>
+  <script src="/assets/private.js" defer></script>
+
+</body>
+</html>
