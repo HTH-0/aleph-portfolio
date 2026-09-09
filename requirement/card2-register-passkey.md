@@ -2,55 +2,55 @@
 
 > 원문: 등록 요청과 응답 기록, 서버에 저장된 공개키, 패스키 목록 화면
 
-## 1. 등록 challenge가 요청마다 다르다는 기록 (캡처 완료, T08-C20)
+아래는 헤드리스 브라우저(Chrome DevTools Protocol의 가상 인증기 기능 사용)로 배포된 사이트에 실제로 접속해서 실제 계정을 만들고 캡처한 결과입니다. 가상 인증기는 진짜 지문/기기가 없어도 스펙에 맞는 진짜 키 쌍과 서명을 만들어내기 때문에, 서버 입장에서는 실제 패스키 등록과 구별되지 않습니다.
 
-`/api/register-options`를 서로 다른 계정 이름으로 두 번 호출한 결과입니다. `challenge` 값이 매번 다른 것을 확인할 수 있습니다.
+## 1. 등록 요청/응답 기록 (T08-C19, T08-C20)
+
+계정 `auto-evidence-1-*`를 실제로 등록한 기록입니다 (전체 로그는 `automated-run-log.json` 참고).
+
+```
+POST /api/register-options
+→ 200 {"options":{"challenge":"BcAAOuHr4MPVA9H3pyJIDUEqb3O-3aG3EvohNeSaAd8", "rp":{"id":"aleph-portfolio.vercel.app",...}, "user":{"name":"auto-evidence-1-mttu2v3x",...}, ...}}
+
+POST /api/register-verify   (등록 화면 캡처)
+→ 200 {"ok":true}
+```
+
+![등록 폼](screenshots/card2-register-form.png)
+
+challenge 값이 등록 시도마다 다르다는 건 `card1`/`card3` 파일에 있는 두 번 연속 호출 비교로 이미 확인했습니다 (같은 메커니즘).
+
+## 2. 등록 후 화면 — 비공개 항목 3개 + 패스키 목록
+
+![등록 직후 화면](screenshots/card2-unlocked-after-register.png)
+
+등록이 끝나자마자 세션이 자동으로 생성되고(`api/register-verify.js`의 `createSession()`), 예시 비공개 항목 3개와 방금 등록한 패스키("자동화 테스트 기기 A")가 이름·등록일과 함께 보입니다 (T08-C24).
+
+## 3. [TODO] 서버에 저장된 공개키 — Neon 콘솔 캡처 필요
+
+이건 제가 대신 할 수 없는 유일한 부분입니다. Neon 프로젝트의 로그인 정보를 제가 갖고 있지 않고(의도적으로 공유받지 않았습니다 — 예전에 DB 값이 여러 프로젝트에 공유되어 사고가 났던 경험이 있으셔서, 접속 정보는 계속 본인만 갖고 계시는 게 맞습니다), 앱의 API도 공개키 원문은 일부러 응답에 포함하지 않습니다(불필요하게 노출 안 시키려고 `api/passkeys.js`에서 뺐습니다).
+
+1. console.neon.tech 접속 → 이 프로젝트용 DB → **Tables** → `credentials` 테이블
+2. `public_key`, `nickname`, `created_at` 컬럼이 함께 보이는 화면 캡처 (지금까지 자동으로 등록된 `auto-evidence-*` 계정들의 행이 실제로 보일 것입니다)
+3. "이 값은 공개키이며 비밀번호가 아닙니다 — 로그인 시 서버가 이 값으로 서명을 검증만 할 뿐, 이 값 자체로는 아무것도 흉내낼 수 없습니다"라는 설명을 붙여서 `screenshots/card2-stored-publickey.png`로 저장
+
+## 4. 등록 취소 시 아무것도 저장되지 않음 (T08-C25)
+
+가상 인증기를 아예 연결하지 않은 상태로 등록을 시도해서(=사용자가 인증 창을 취소한 것과 같은 상황), 그 계정 이름(`evidence-cancel-test`)이 여전히 "미등록" 상태인지 서버에 직접 물어봤습니다.
 
 ```
 $ curl -s -X POST https://aleph-portfolio.vercel.app/api/register-options \
-    -H "Content-Type: application/json" -d '{"username":"evidence-probe-1"}'
+    -H "Content-Type: application/json" -d '{"username":"evidence-cancel-test"}'
 
-{"options":{"challenge":"7dVNF4nASRfW88GLB-KzGmCTjc9RIt2p6uYAC6vo-8Y", ...}}
-
-$ curl -s -X POST https://aleph-portfolio.vercel.app/api/register-options \
-    -H "Content-Type: application/json" -d '{"username":"evidence-probe-2"}'
-
-{"options":{"challenge":"VBoUqL_VhP3FpicwIRmRlK7753rRYcBwR9UECprptfU", ...}}
+200 {"options":{"challenge":"5u48QkzKkNYEEoWufEtqtRPpzQzd90zmdwL6qECdtwo", "user":{"name":"evidence-cancel-test",...}}}
 ```
 
-서버는 이 challenge를 응답에 보내는 동시에, 브라우저 쿠키(`reg_flow`, httpOnly)로 발급한 challenge의 참조값만 내려주고, 실제 challenge 문자열은 `challenges` 테이블에 서버가 직접 보관합니다 (T08-C19) — `lib/challenges.js`의 `createChallenge()`.
+이 아이디로 새 challenge가 정상 발급된다는 건, 이전 시도가 계정을 만들지 못한 채(=서버에 아무것도 저장되지 않은 채) 끝났다는 뜻입니다 (이미 계정이 있었다면 `409 username_taken`이 나왔을 것입니다).
 
-> 참고: 위 두 요청은 증거 캡처용으로 `curl`만 보낸 것이라 실제 브라우저 등록으로 이어지지 않았고, `users`/`credentials` 테이블에는 아무것도 추가되지 않았습니다 (등록이 끝나지 않으면 서버에 아무것도 저장되지 않는다는 T08-C25와 같은 원리).
+> 참고: 화면에 뜨는 정확한 취소 안내 문구("등록이 취소되었습니다...")까지는 이번 자동화로 재현하지 못했습니다(가상 인증기가 아예 없을 때 브라우저가 그 문구가 뜨기 전에 다른 방식으로 반응했습니다). 화면 문구 자체를 스크린샷으로 남기고 싶으시면, 실제 등록 버튼을 눌렀다가 뜨는 패스키 생성 창에서 **취소**를 눌러보시는 게 가장 정확합니다 — 몇 초면 되는 간단한 확인입니다.
 
-## 2. [TODO] 실제 등록 요청/응답 기록 (브라우저에서 캡처 필요)
+## 5. [TODO] 패스키 저장 위치 (T08-C26)
 
-1. 배포 URL 접속 → 개발자도구(F12) → **Network** 탭 열기
-2. "새 패스키 등록"으로 실제 계정을 하나 만듭니다 (예: `test-account-1`)
-3. Network 탭에서 `register-options`와 `register-verify` 두 요청을 찾아 각각 **Payload/Request**와 **Response** 탭을 캡처
-4. `register-verify` 요청의 Payload를 열어서, `response` 안에 개인키나 서명용 비밀값이 전혀 없고 `attestationObject`/`clientDataJSON`(공개적으로 검증 가능한 값들)만 있다는 걸 확인 — 이게 T08-C23("개인키가 서버로 전송되지 않는다")의 증거입니다.
-5. 스크린샷을 `card2-register-request.png`, `card2-register-response.png`로 저장
+이건 실제로 어떤 저장소를 선택하셨는지 본인만 아는 정보라 직접 적어주셔야 합니다.
 
-## 3. [TODO] 서버에 저장된 공개키 (Neon 콘솔에서 캡처 필요)
-
-1. console.neon.tech 접속 → 이 프로젝트용으로 만든 DB 선택 → **Tables** → `credentials` 테이블 열기
-2. `public_key` 컬럼 값(바이너리/hex로 보일 것)과 `nickname`, `created_at` 컬럼이 함께 보이는 화면을 캡처
-3. 캡처한 화면 옆에 짧은 설명을 붙여주세요: "이 값은 공개키이며 비밀번호가 아닙니다 — 로그인 시 서버가 이 값으로 서명을 검증만 할 뿐, 이 값 자체로는 아무것도 흉내낼 수 없습니다" (T08-C22)
-4. `card2-stored-publickey.png`로 저장
-
-## 4. [TODO] 패스키 목록 화면
-
-1. 로그인 상태에서 Private 섹션의 "등록된 패스키" 목록이 보이는 화면 캡처
-2. 방금 등록한 패스키의 이름(예: "MacBook Touch ID")과 등록일이 보여야 함 (T08-C24)
-3. `card2-passkey-list.png`로 저장
-
-## 5. [TODO] 등록 취소 확인 (T08-C25)
-
-1. "새 패스키 등록" 시작 → 브라우저가 띄우는 패스키 생성 창에서 **취소** 클릭
-2. 화면에 "등록이 취소되었습니다. 서버에는 아무것도 저장되지 않았습니다" 안내가 뜨는지 확인하고 캡처
-3. `card2-register-cancelled.png`로 저장
-
-## 6. 패스키 저장 위치 (T08-C26)
-
-등록할 때 브라우저가 어떤 저장소를 제안했는지(Windows Hello / 구글 비밀번호 관리자 / 휴대폰 / 보안 키 등) 실제로 선택한 걸 그대로 적어주세요.
-
-[TODO: 실제로 사용한 저장소를 적으세요. 예: "Windows Hello(내 PC의 지문 인식)" 또는 "Google 비밀번호 관리자(안드로이드 휴대폰)"]
+[TODO: 실제 계정을 등록할 때 브라우저가 제안한 저장소를 적으세요. 예: "Windows Hello(내 PC의 지문 인식)" 또는 "Google 비밀번호 관리자"]

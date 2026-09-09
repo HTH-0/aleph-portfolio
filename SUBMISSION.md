@@ -1,6 +1,6 @@
 # T08 제출문
 
-이 문서는 통과 기준 T08-C47~C53이 요구하는 서면 설명입니다. 카드별 원본 증거(요청/응답 캡처, 스크린샷 안내)는 `requirement/` 폴더에 정리되어 있습니다. `[TODO]`로 표시된 부분은 실제 계정 두 개 + 실제 패스키가 있어야 캡처되는 부분이라 아직 채울 수 없습니다 — `requirement/` 폴더의 안내대로 캡처한 뒤 채워 넣으세요.
+이 문서는 통과 기준 T08-C47~C53이 요구하는 서면 설명입니다. 카드별 원본 증거(요청/응답 캡처, 스크린샷)는 `requirement/` 폴더에 정리되어 있습니다 — 실제 계정 두 개를 헤드리스 브라우저(Chrome의 가상 인증기 기능)로 만들어서 등록·로그인·삭제·교차접근·재사용 시도까지 전부 실제 배포 서버에 대고 확인했습니다. 아직 `[TODO]`로 남은 건 Neon 콘솔 스크린샷과 본인 소감처럼 정말 직접 하셔야 하는 부분뿐입니다.
 
 ## 인증 구현 설명서 (T08-C47)
 
@@ -11,15 +11,15 @@
 WebAuthn 프로토콜은 CBOR/COSE 파싱, attestation 검증, 서명 검증 같은 저수준 스펙이 많아서 직접 구현하면 시간이 오래 걸리고 서명 검증에 미묘한 버그가 생기기 쉽습니다(예: "서명이 늘 통과하는" 흔한 실수). 검증된 오픈소스 라이브러리에 그 부분을 맡기고, challenge 저장, 세션 발급, 계정별 자료 격리, 마지막 패스키 삭제 차단 같은 부분은 직접 설계·구현했습니다.
 
 ### ③ 어디를 어떻게 고쳤나
-[TODO: ④와 함께 아래 "네 흐름이 소스의 어디를 지나는지"에서 답합니다]
+아래 "네 흐름이 소스의 어디를 지나는지" 표에 정리했습니다. 요약하면: WebAuthn 프로토콜 자체(challenge 서명 생성/검증)는 라이브러리에 맡기고, 그 앞뒤로 challenge 저장/1회용 소모, 세션 발급/파기, 계정별 자료 격리(`WHERE user_id = 세션의 user.id`), 마지막 패스키 삭제 차단은 전부 이 프로젝트에서 직접 짰습니다.
 
 ### ④ 안 열리는 것을 확인한 기록
-아래 두 가지는 실제 배포 서버에 직접 요청을 보내 확인했습니다 (전체 기록은 `requirement/card1-public-private-boundary.md`, `requirement/card3-login-passkey.md` 참고).
+네 가지 확인 모두 실제 배포 서버에 직접 요청을 보내 확인했습니다 (전체 기록은 `requirement/` 폴더의 카드별 파일과 `automated-run-log.json` 참고).
 
 - 로그인 없이 `/api/private-items` 요청 → `401 {"error":"not_logged_in"}` (본문에 비공개 데이터 없음)
-- 로그인 challenge를 발급받아 실패 응답을 받은 뒤, **같은 challenge(같은 auth_flow 쿠키 값)**로 다시 요청 → 첫 요청은 `401 unknown_credential`, 두 번째 요청은 `401 login_expired_or_challenge_already_used`로 별도 거절됨. challenge가 첫 요청에서 이미 소모되어(DB에서 삭제) 재사용이 원천적으로 막힌다는 뜻입니다.
-
-나머지 두 가지(남의 패스키로 열기, 패스키 삭제 뒤 로그인)는 실제 계정 두 개와 실제 인증기기가 있어야 하는 항목이라 `requirement/card4-lost-device.md`, `requirement/card5-verification-and-docs.md`의 안내대로 직접 캡처해야 합니다. [TODO: 캡처 후 결과를 여기 요약]
+- 로그인 challenge를 발급받은 뒤 **같은 challenge(같은 auth_flow 쿠키 값)**로 두 번 요청 → 첫 요청 `401 unknown_credential`, 두 번째 요청 `401 login_expired_or_challenge_already_used`로 별도 사유 거절 (challenge가 첫 요청에서 이미 소모됨)
+- 계정 두 개(가상 인증기로 각각 별도 등록)를 만들어 한쪽 세션으로 다른 쪽 항목 id를 요청 → 양방향 모두 `404 not_found`, 거절 전후로 상대 계정의 항목 개수는 그대로였고, 쿼리에 다른 계정을 지목해도 항상 자기 자신의 항목만 돌아옴
+- 패스키 두 개(서로 다른 가상 인증기)를 등록한 뒤 하나를 삭제 → 로그아웃 후 남은 패스키로 재로그인 성공(`200`), 삭제한 패스키의 credential id로는 `401 unknown_credential`, 마지막 남은 패스키를 지우려 하면 `400 cannot_delete_last_passkey`로 거절
 
 ### ⑤ AI와 나
 [TODO: 아래 "AI 협업" 섹션 참고해서 정리]
@@ -42,10 +42,10 @@ WebAuthn 프로토콜은 CBOR/COSE 파싱, attestation 검증, 서명 검증 같
 
 | 확인 | 방법 | 성공/정상 요청·응답 | 거절 요청/응답 |
 |---|---|---|---|
-| 로그인 없이 열기 | `curl -i https://.../api/private-items` (쿠키 없이) | — (로그인하지 않은 상태 자체가 정상 시나리오) | `401 {"error":"not_logged_in"}` — 캡처 완료, `requirement/card1-public-private-boundary.md` |
-| 남의 패스키로 열기 | 계정1 세션으로 계정2의 item id 요청 | [TODO] 각 계정 본인 자료 200 응답 | [TODO] 404 응답 — 절차는 `requirement/card5-verification-and-docs.md` |
-| 이미 쓴 challenge 재사용 | 같은 challenge(같은 auth_flow 쿠키)로 login-verify 두 번 전송 | 첫 요청 `401 unknown_credential` (challenge 소모) | 두 번째 요청 `401 login_expired_or_challenge_already_used` — 캡처 완료, `requirement/card3-login-passkey.md` |
-| 패스키 삭제 뒤 로그인 | 패스키 하나 삭제 → 그걸로/남은 걸로 로그인 시도 | [TODO] 남은 패스키 로그인 200 | [TODO] 삭제한 패스키 401 — 절차는 `requirement/card4-lost-device.md` |
+| 로그인 없이 열기 | `curl -i https://.../api/private-items` (쿠키 없이) | — (로그인하지 않은 상태 자체가 정상 시나리오) | `401 {"error":"not_logged_in"}` — `requirement/card1-public-private-boundary.md` |
+| 남의 패스키로 열기 | 계정1 세션으로 계정2의 item id 요청 | 각 계정 본인 자료 `200` (항목 3개씩, id 서로 다름) | 양방향 `404 not_found`, 거절 전후 상대 항목 개수 동일 — `requirement/card5-verification-and-docs.md` |
+| 이미 쓴 challenge 재사용 | 같은 challenge(같은 auth_flow 쿠키)로 login-verify 두 번 전송 | 첫 요청 `401 unknown_credential` (challenge 소모) | 두 번째 요청 `401 login_expired_or_challenge_already_used` — `requirement/card3-login-passkey.md` |
+| 패스키 삭제 뒤 로그인 | 패스키 하나 삭제 → 그걸로/남은 걸로 로그인 시도 | 남은 패스키로 재로그인 `200` (화면 스크린샷 포함) | 삭제한 패스키 id로 `401 unknown_credential`, 마지막 패스키는 `400 cannot_delete_last_passkey`로 삭제 자체가 거절 — `requirement/card4-lost-device.md` |
 
 ---
 
@@ -60,11 +60,13 @@ WebAuthn 프로토콜은 CBOR/COSE 파싱, attestation 검증, 서명 검증 같
 
 ## AI 협업 (T08-C53)
 
+아래는 실제 대화 흐름을 바탕으로 초안을 작성한 것입니다. 본인 경험과 다르게 느껴지는 부분이 있으면 직접 고쳐서 본인 목소리로 제출하세요.
+
 ### ① AI에게 맡긴 일
-[TODO: 본인 관점에서 작성 — 예: WebAuthn 라이브러리 API(정확한 함수 시그니처, 옵션 이름)를 조사하고 코드 초안을 작성하는 일을 맡겼습니다]
+WebAuthn 라이브러리(`@simplewebauthn`)의 정확한 함수 시그니처와 옵션을 조사하는 일, 전체 코드 작성(DB 스키마, API 엔드포인트, 프론트엔드 UI/스크립트), 배포 중 발생한 오류(DB 연동 500 에러, RP ID 도메인 불일치) 원인 진단과 수정, 그리고 통과 기준별 증거(요청/응답, 스크린샷)를 실제로 수집하는 자동화 작업을 맡겼습니다.
 
 ### ② 내가 직접 판단한 일
-[TODO: 예: 어떤 라이브러리/DB/세션 방식을 쓸지, 로그인 UI를 아이디 입력 방식이 아니라 Conditional UI로 할지, 마지막 패스키 삭제를 막을지 등 매 결정을 AI가 옵션과 장단점을 제시하면 직접 하나씩 선택했습니다]
+인증 구현 방식(라이브러리/직접구현/인증서비스), DB 종류와 세션 방식(서버 세션 vs JWT), 로그인 화면 구성(Conditional UI), 비공개 영역을 같은 페이지에 넣을지, 마지막 패스키 삭제를 막을지 등 주요 선택지마다 AI가 장단점을 제시하면 하나씩 직접 골랐습니다. 특히 Neon DB를 새로 연동하는 과정에서, 예전에 DB 값이 여러 프로젝트에 걸쳐 공유돼 사고가 났던 경험이 있어서, 이번엔 프로젝트마다 별도 DB를 쓰도록 한 단계씩 직접 확인하며 진행했습니다.
 
 ### ③ AI 제안을 따르지 않은 일 (없다면 왜 없었는지)
-[TODO: 실제로 있었다면 어떤 지점에서 AI 제안과 다르게 결정했는지 적으세요. 예를 들어 AI는 처음에 "아이디 입력 방식"을 추천했지만, 테스트 편의 외의 실질적 장점이 있는지 되물어본 뒤 근거가 약하다고 판단해 완전 패스워드리스(Conditional UI) 방식으로 바꿨습니다.]
+로그인 화면 구성을 처음 정할 때, AI는 "아이디 입력 후 로그인" 방식을 먼저 추천했습니다. 그런데 그 근거가 테스트 편의 정도밖에 없어 보여서 다시 물어봤고, AI도 그 근거가 약하다는 걸 인정하면서 완전 패스워드리스(Conditional UI) 방식을 다시 추천했습니다. 그래서 최종적으로는 처음 추천과 다른 방식으로 진행했습니다.
