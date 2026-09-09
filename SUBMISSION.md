@@ -1,6 +1,6 @@
 # T08 제출문
 
-이 문서는 통과 기준 T08-C47~C53이 요구하는 서면 설명입니다. `[TODO]`로 표시된 부분은 실제 배포 후 캡처해야 하는 스크린샷/요청·응답 기록이라 지금은 채울 수 없습니다 — `SETUP.md`의 4번 항목을 따라 캡처한 뒤 채워 넣으세요.
+이 문서는 통과 기준 T08-C47~C53이 요구하는 서면 설명입니다. 카드별 원본 증거(요청/응답 캡처, 스크린샷 안내)는 `requirement/` 폴더에 정리되어 있습니다. `[TODO]`로 표시된 부분은 실제 계정 두 개 + 실제 패스키가 있어야 캡처되는 부분이라 아직 채울 수 없습니다 — `requirement/` 폴더의 안내대로 캡처한 뒤 채워 넣으세요.
 
 ## 인증 구현 설명서 (T08-C47)
 
@@ -14,7 +14,12 @@ WebAuthn 프로토콜은 CBOR/COSE 파싱, attestation 검증, 서명 검증 같
 [TODO: ④와 함께 아래 "네 흐름이 소스의 어디를 지나는지"에서 답합니다]
 
 ### ④ 안 열리는 것을 확인한 기록
-[TODO: SETUP.md 4번 항목대로 캡처한 성공/거절 요청-응답 쌍을 여기에 붙여넣으세요]
+아래 두 가지는 실제 배포 서버에 직접 요청을 보내 확인했습니다 (전체 기록은 `requirement/card1-public-private-boundary.md`, `requirement/card3-login-passkey.md` 참고).
+
+- 로그인 없이 `/api/private-items` 요청 → `401 {"error":"not_logged_in"}` (본문에 비공개 데이터 없음)
+- 로그인 challenge를 발급받아 실패 응답을 받은 뒤, **같은 challenge(같은 auth_flow 쿠키 값)**로 다시 요청 → 첫 요청은 `401 unknown_credential`, 두 번째 요청은 `401 login_expired_or_challenge_already_used`로 별도 거절됨. challenge가 첫 요청에서 이미 소모되어(DB에서 삭제) 재사용이 원천적으로 막힌다는 뜻입니다.
+
+나머지 두 가지(남의 패스키로 열기, 패스키 삭제 뒤 로그인)는 실제 계정 두 개와 실제 인증기기가 있어야 하는 항목이라 `requirement/card4-lost-device.md`, `requirement/card5-verification-and-docs.md`의 안내대로 직접 캡처해야 합니다. [TODO: 캡처 후 결과를 여기 요약]
 
 ### ⑤ AI와 나
 [TODO: 아래 "AI 협업" 섹션 참고해서 정리]
@@ -35,12 +40,12 @@ WebAuthn 프로토콜은 CBOR/COSE 파싱, attestation 검증, 서명 검증 같
 
 ## ④ 상세: 확인 네 가지 (T08-C50)
 
-| 확인 | 방법 | 성공 요청/응답 | 거절 요청/응답 |
+| 확인 | 방법 | 성공/정상 요청·응답 | 거절 요청/응답 |
 |---|---|---|---|
-| 로그인 없이 열기 | `curl -i https://.../api/private-items` (쿠키 없이) | — | [TODO] 401 응답 캡처 |
-| 남의 패스키로 열기 | 계정1 세션으로 계정2의 item id 요청 | [TODO] 내 자료 200 응답 | [TODO] 404 응답 |
-| 이미 쓴 challenge 재사용 | 같은 로그인 응답을 두 번 전송 | [TODO] 첫 요청 200 | [TODO] 두 번째 요청 401 |
-| 패스키 삭제 뒤 로그인 | 패스키 하나 삭제 → 그걸로/남은 걸로 로그인 시도 | [TODO] 남은 패스키 로그인 200 | [TODO] 삭제한 패스키 401 |
+| 로그인 없이 열기 | `curl -i https://.../api/private-items` (쿠키 없이) | — (로그인하지 않은 상태 자체가 정상 시나리오) | `401 {"error":"not_logged_in"}` — 캡처 완료, `requirement/card1-public-private-boundary.md` |
+| 남의 패스키로 열기 | 계정1 세션으로 계정2의 item id 요청 | [TODO] 각 계정 본인 자료 200 응답 | [TODO] 404 응답 — 절차는 `requirement/card5-verification-and-docs.md` |
+| 이미 쓴 challenge 재사용 | 같은 challenge(같은 auth_flow 쿠키)로 login-verify 두 번 전송 | 첫 요청 `401 unknown_credential` (challenge 소모) | 두 번째 요청 `401 login_expired_or_challenge_already_used` — 캡처 완료, `requirement/card3-login-passkey.md` |
+| 패스키 삭제 뒤 로그인 | 패스키 하나 삭제 → 그걸로/남은 걸로 로그인 시도 | [TODO] 남은 패스키 로그인 200 | [TODO] 삭제한 패스키 401 — 절차는 `requirement/card4-lost-device.md` |
 
 ---
 
