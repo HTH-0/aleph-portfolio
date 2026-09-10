@@ -4,13 +4,15 @@
 
 아래는 헤드리스 브라우저(Chrome DevTools Protocol의 가상 인증기 기능 사용)로 배포된 사이트에 실제로 접속해서 실제 계정을 만들고 캡처한 결과입니다. 가상 인증기는 진짜 지문/기기가 없어도 스펙에 맞는 진짜 키 쌍과 서명을 만들어내기 때문에, 서버 입장에서는 실제 패스키 등록과 구별되지 않습니다.
 
+> 2026-09-10 프론트엔드 리디자인(`industry.css`) 이후 재배포된 사이트를 대상으로 새 계정(`auto-evidence-1-jqw3nozm` 등)으로 다시 캡처했습니다. 백엔드는 이번 리디자인에서 바뀌지 않았으므로 요청/응답 형태는 이전과 동일합니다.
+
 ## 1. 등록 요청/응답 기록 (T08-C19, T08-C20)
 
-계정 `auto-evidence-1-*`를 실제로 등록한 기록입니다 (전체 로그는 `automated-run-log.json` 참고).
+계정 `auto-evidence-1-jqw3nozm`를 실제로 등록한 기록입니다 (전체 로그는 `automated-run-log.json` 참고).
 
 ```
 POST /api/register-options
-→ 200 {"options":{"challenge":"BcAAOuHr4MPVA9H3pyJIDUEqb3O-3aG3EvohNeSaAd8", "rp":{"id":"aleph-portfolio.vercel.app",...}, "user":{"name":"auto-evidence-1-mttu2v3x",...}, ...}}
+→ 200 {"options":{"challenge":"sYpd4m5_5yu4knZXQ0vVo1oGU9fvYnIWV0gT4Q7vkGk", "rp":{"id":"aleph-portfolio.vercel.app",...}, "user":{"name":"auto-evidence-1-jqw3nozm",...}, ...}}
 
 POST /api/register-verify   (등록 화면 캡처)
 → 200 {"ok":true}
@@ -36,18 +38,27 @@ challenge 값이 등록 시도마다 다르다는 건 `card1`/`card3` 파일에 
 
 ## 4. 등록 취소 시 아무것도 저장되지 않음 (T08-C25)
 
-가상 인증기를 아예 연결하지 않은 상태로 등록을 시도해서(=사용자가 인증 창을 취소한 것과 같은 상황), 그 계정 이름(`evidence-cancel-test`)이 여전히 "미등록" 상태인지 서버에 직접 물어봤습니다.
+가상 인증기를 아예 연결하지 않은 상태로 실제 등록 버튼을 눌러서(=사용자 앞에 인증 기기가 없거나 창을 취소한 것과 같은 상황), 브라우저가 화면에 안내 문구를 띄우는 것까지 이번에는 끝까지 헤드리스 브라우저로 재현했습니다. 가상 인증기가 없으면 브라우저가 자체 타임아웃(옵션의 `timeout: 60000`)만큼 기다린 뒤 스펙대로 `NotAllowedError`로 요청을 거부하는데, 이 앱의 프론트엔드는 정확히 이 경우를 잡아서 취소 안내를 보여주도록 짜여 있습니다.
+
+```
+계정 evidence-cancel-test-jqw3nozm로 등록 버튼 클릭 → 가상 인증기 없음 → 약 60초 뒤 NotAllowedError
+화면에 뜬 안내: "등록이 취소되었습니다. 서버에는 아무것도 저장되지 않았습니다."
+```
+
+![등록 취소 안내](screenshots/card2-register-cancel-attempt.png)
+
+이어서 그 계정 이름이 여전히 "미등록" 상태인지 서버에 직접 물어봤습니다.
 
 ```
 $ curl -s -X POST https://aleph-portfolio.vercel.app/api/register-options \
-    -H "Content-Type: application/json" -d '{"username":"evidence-cancel-test"}'
+    -H "Content-Type: application/json" -d '{"username":"evidence-cancel-test-jqw3nozm"}'
 
-200 {"options":{"challenge":"5u48QkzKkNYEEoWufEtqtRPpzQzd90zmdwL6qECdtwo", "user":{"name":"evidence-cancel-test",...}}}
+200 {"options":{"challenge":"AQEm-hTIEbFNhG5OmjO4lk5aNhl6MLOFVHdU49yUX9g", "user":{"name":"evidence-cancel-test-jqw3nozm",...}}}
 ```
 
 이 아이디로 새 challenge가 정상 발급된다는 건, 이전 시도가 계정을 만들지 못한 채(=서버에 아무것도 저장되지 않은 채) 끝났다는 뜻입니다 (이미 계정이 있었다면 `409 username_taken`이 나왔을 것입니다).
 
-> 참고: 화면에 뜨는 정확한 취소 안내 문구("등록이 취소되었습니다...")까지는 이번 자동화로 재현하지 못했습니다(가상 인증기가 아예 없을 때 브라우저가 그 문구가 뜨기 전에 다른 방식으로 반응했습니다). 화면 문구 자체를 스크린샷으로 남기고 싶으시면, 실제 등록 버튼을 눌렀다가 뜨는 패스키 생성 창에서 **취소**를 눌러보시는 게 가장 정확합니다 — 몇 초면 되는 간단한 확인입니다.
+> 이전 증거 수집(리디자인 전)에서는 이 화면 문구까지는 자동화로 재현하지 못해 "직접 취소 버튼을 눌러 확인해달라"고 남겨뒀었는데, 이번에는 가상 인증기를 아예 붙이지 않은 채로 실제 브라우저의 자연스러운 타임아웃(NotAllowedError)까지 기다려서 화면 문구 캡처까지 성공했습니다.
 
 ## 5. [TODO] 패스키 저장 위치 (T08-C26)
 

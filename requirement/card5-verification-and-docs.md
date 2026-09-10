@@ -4,7 +4,7 @@
 
 **인증 구현 설명서 여섯 항목, 짧은 확인 방법, AI 협업 부분은 `SUBMISSION.md`에 있습니다.**
 
-카드5 고유의 "계정 두 개 교차 접근" 확인(T08-C36~C41)은 헤드리스 브라우저로 서로 다른 가상 인증기를 쓰는 계정 두 개(`auto-evidence-1-*`, `auto-evidence-2-*`)를 실제로 만들어서 전부 자동으로 확인했습니다.
+카드5 고유의 "계정 두 개 교차 접근" 확인(T08-C36~C41)은 헤드리스 브라우저로 서로 다른 가상 인증기를 쓰는 계정 두 개(`auto-evidence-1-jqw3nozm`, `auto-evidence-2-jqw3nozm`)를 실제로 만들어서 전부 자동으로 확인했습니다. (2026-09-10 프론트엔드 리디자인 이후 재배포된 사이트를 대상으로 새 계정 쌍으로 다시 캡처 — 백엔드는 그대로라 동작은 동일합니다.)
 
 ## 1. 서로 다른 계정에 서로 다른 비공개 내용 (T08-C36)
 
@@ -36,7 +36,7 @@ GET /api/private-items/<계정1 항목 id>   Cookie: sid=<계정2 세션>
 ## 5. 요청에 다른 계정을 적어 보내도 내 자료만 돌아옴 (T08-C40)
 
 ```
-GET /api/private-items?userId=someone-else   Cookie: sid=<계정1 세션>
+GET /api/private-items?userId=auto-evidence-2-jqw3nozm   Cookie: sid=<계정1 세션>
 → 200 {"items":[... 계정1 자신의 항목 3개, id 동일 ...]}
 ```
 
