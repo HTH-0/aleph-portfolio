@@ -77,7 +77,7 @@
 
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'button button-secondary passkey-delete';
+      delBtn.className = 'btn btn-ghost passkey-delete';
       delBtn.textContent = '삭제';
       delBtn.addEventListener('click', () => deletePasskey(pk.id));
 
@@ -219,12 +219,11 @@
 
     const registerForm = $('register-form');
     $('show-register-button').addEventListener('click', () => {
-      registerForm.hidden = false;
-      $('show-register-button').hidden = true;
+      registerForm.hidden = !registerForm.hidden;
+      if (registerForm.hidden) showMessage('');
     });
     $('cancel-register-button').addEventListener('click', () => {
       registerForm.hidden = true;
-      $('show-register-button').hidden = false;
       showMessage('');
     });
     registerForm.addEventListener('submit', (e) => {
